@@ -1,0 +1,61 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+# Time settings
+t = np.linspace(0, 20, 1000)
+
+# Figure-eight trajectory using parametric equations
+x_desired = 5 * np.sin(t)
+y_desired = 5 * np.sin(t) * np.cos(t)
+
+# Drone actual position
+x = np.zeros(len(t))
+y = np.zeros(len(t))
+
+# Velocity
+vx = 0
+vy = 0
+
+# Controller gains
+kp = 2.0
+kd = 0.5
+
+# Disturbance (wind)
+wind_x = 0.02
+wind_y = -0.01
+
+# Simulation loop
+for i in range(1, len(t)):
+
+    # Position error
+    ex = x_desired[i] - x[i-1]
+    ey = y_desired[i] - y[i-1]
+
+    # PD Controller
+    ax = kp * ex - kd * vx
+    ay = kp * ey - kd * vy
+
+    # Add disturbance
+    ax += wind_x
+    ay += wind_y
+
+    # Update velocity
+    vx += ax * 0.02
+    vy += ay * 0.02
+
+    # Update position
+    x[i] = x[i-1] + vx * 0.02
+    y[i] = y[i-1] + vy * 0.02
+
+# Plot trajectory
+plt.figure(figsize=(8,6))
+plt.plot(x_desired, y_desired, 'r--', label='Desired Figure-8 Path')
+plt.plot(x, y, 'b', label='Drone Path')
+plt.xlabel("X Position")
+plt.ylabel("Y Position")
+plt.title("Drone Figure-Eight Trajectory Tracking")
+plt.legend()
+plt.grid()
+plt.axis('equal')
+plt.show()
